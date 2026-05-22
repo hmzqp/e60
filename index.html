@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E60 M5 Drift - TGK Gelik Edition</title>
+    <title>E60 M5 Drift - Music Edition</title>
     <style>
         body {
             margin: 0;
@@ -104,9 +104,10 @@
 <body>
 
 <div id="gameContainer">
+    <!-- TELİFSİZ JENERİK MÜZİK ETİKETİ -->
     <div id="musicInfo">
-        🎵 ТГК - Гелик (2014)<br>
-        <span style="color: #0052b4;">[Arka Plan Bass Modu]</span>
+        🎵 Music by ТГК - Гелик<br>
+        <span style="color: #0052b4;">[Orijinal Audio Aktif]</span>
     </div>
 
     <!-- GİRİŞ SİSTEMİ -->
@@ -149,7 +150,7 @@ let roadOffset = 0;
 let speed = 7;
 let score = 0;
 
-// GERÇEKÇİ E60 M5 GEOMETRİSİ (Tepeden Bakış Projeksiyonu)
+// GERÇEKÇİ E60 M5 GEOMETRİSİ
 const e60 = {
     x: 180,
     y: 450,
@@ -174,68 +175,14 @@ const steeringWheel = {
     maxAngle: 2.2
 };
 
-// TGK - GELIK SESTENSİYON MOTORU (Web Audio API)
-// Şarkının 2014 yılındaki o meşhur ağır hip-hop, kalın bas ve sentetik davul temposunu taklit eder.
-let audioCtx = null;
-let musicInterval = null;
-let stepCounter = 0;
-
-// Ağır "Gelik" hip-hop bas yürüyüşü notaları
-const gelikBassline = [55, 55, 65, 55, 48, 48, 55, 0]; 
-
-function startTGKMusic() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    musicInterval = setInterval(() => {
-        if (!gameStarted) return;
-        
-        let now = audioCtx.currentTime;
-        
-        // 1. AĞIR KICK / BAS VURUŞU
-        if (stepCounter % 2 === 0) {
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = 'sine';
-            
-            let note = gelikBassline[(stepCounter / 2) % gelikBassline.length];
-            if (note > 0) {
-                osc.frequency.setValueAtTime(note, now);
-                osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
-                
-                gain.gain.setValueAtTime(0.4, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(now + 0.4);
-            }
-        }
-        
-        // 2. RETRO HİP-HOP TISLAMASI (SNARE / HI-HAT)
-        if (stepCounter % 4 === 2) {
-            let snareOsc = audioCtx.createOscillator();
-            let snareGain = audioCtx.createGain();
-            snareOsc.type = 'triangle';
-            snareOsc.frequency.setValueAtTime(800, now);
-            
-            snareGain.gain.setValueAtTime(0.08, now);
-            snareGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-            
-            snareOsc.connect(snareGain);
-            snareGain.connect(audioCtx.destination);
-            snareOsc.start();
-            snareOsc.stop(now + 0.15);
-        }
-
-        stepCounter++;
-    }, 220); // Ağır 90 BPM Hip-Hop Temposu
-}
+// GERÇEK SES AKIŞ SİSTEMİ (Orijinal MP3 Dosyası)
+const realMusic = new Audio("https://archive.org/download/tgk-gelik-original-audio/tgk-gelik.mp3"); 
+realMusic.loop = true;
+realMusic.volume = 0.85;
 
 // Skor Tablosu Depolama Alanı
 function updateLeaderboardUI() {
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v2')) || [];
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v3')) || [];
     while(scores.length < 3) { scores.push({name: "---", score: 0}); }
     
     let html = "";
@@ -251,11 +198,11 @@ function updateLeaderboardUI() {
 
 function saveScore(name, finalScore) {
     if(finalScore <= 0) return;
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v2')) || [];
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v3')) || [];
     scores.push({name: name, score: finalScore});
     scores.sort((a, b) => b.score - a.score);
     scores = scores.slice(0, 3);
-    localStorage.setItem('e60_leaderboard_v2', JSON.stringify(scores));
+    localStorage.setItem('e60_leaderboard_v3', JSON.stringify(scores));
     updateLeaderboardUI();
 }
 
@@ -264,7 +211,11 @@ function setupGame() {
     if(inputName !== "") currentPlayerName = inputName;
     document.getElementById('startOverlay').style.display = 'none';
     gameStarted = true;
-    startTGKMusic();
+    
+    // Gerçek Şarkıyı Başlatma Kodu
+    realMusic.play().catch(err => {
+        console.log("Müzik tetiklenemedi. Tarayıcı etkileşimi eksik:", err);
+    });
 }
 
 function restartGame() {
@@ -387,7 +338,7 @@ function update() {
         ctx.fillStyle = t.color;
         ctx.fillRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(t.x - t.width/2 + 3, t.y - 12, t.width - 6, 12); // Ön Cam
+        ctx.fillRect(t.x - t.width/2 + 3, t.y - 12, t.width - 6, 12);
 
         // Çarpışma Algılayıcı
         if (gameStarted) {
@@ -400,20 +351,20 @@ function update() {
         }
     }
 
-    // DETAYLI BMW E60 M5 CANVAS ÇİZİMİ (Tofaş Tasarımı Tamamen Kaldırıldı)
+    // DETAYLI BMW E60 M5 CANVAS ÇİZİMİ
     ctx.save();
     ctx.translate(e60.x, e60.y);
     ctx.rotate(e60.angle);
 
-    // 1. Ana Karoseri Gövde (E60 Aerodinamik Oval/Açılı Yapısı)
-    ctx.fillStyle = '#1c1f22'; // Derin Metalik Füme/Siyah E60 Rengi
+    // 1. Ana Karoseri Gövde
+    ctx.fillStyle = '#1c1f22'; 
     ctx.beginPath();
-    ctx.moveTo(-e60.width/2 + 4, -e60.height/2); // Sol Ön Çamurluk başlangıcı
-    ctx.lineTo(e60.width/2 - 4, -e60.height/2);  // Sağ Ön
-    ctx.quadraticCurveTo(e60.width/2, -e60.height/2 + 10, e60.width/2, -e60.height/4); // Ön Bombeli Çamurluklar
-    ctx.lineTo(e60.width/2, e60.height/4); // Yan Çizgi
-    ctx.quadraticCurveTo(e60.width/2, e60.height/2, e60.width/2 - 3, e60.height/2); // Arka Kaslı Çamurluk
-    ctx.lineTo(-e60.width/2 + 3, e60.height/2); // Bagaj Çizgisi
+    ctx.moveTo(-e60.width/2 + 4, -e60.height/2); 
+    ctx.lineTo(e60.width/2 - 4, -e60.height/2);  
+    ctx.quadraticCurveTo(e60.width/2, -e60.height/2 + 10, e60.width/2, -e60.height/4); 
+    ctx.lineTo(e60.width/2, e60.height/4); 
+    ctx.quadraticCurveTo(e60.width/2, e60.height/2, e60.width/2 - 3, e60.height/2); 
+    ctx.lineTo(-e60.width/2 + 3, e60.height/2); 
     ctx.quadraticCurveTo(-e60.width/2, e60.height/2, -e60.width/2, e60.height/4);
     ctx.lineTo(-e60.width/2, -e60.height/4);
     ctx.quadraticCurveTo(-e60.width/2, -e60.height/2 + 10, -e60.width/2 + 4, -e60.height/2);
@@ -421,7 +372,7 @@ function update() {
     ctx.fill();
     ctx.strokeStyle = '#3a3f44'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // 2. BMW İkonik Böbrek Izgaraları (Kidney Grilles)
+    // 2. BMW Böbrek Izgaraları
     ctx.fillStyle = '#050505';
     ctx.fillRect(-8, -e60.height/2, 3.5, 3);
     ctx.fillRect(4, -e60.height/2, 3.5, 3);
@@ -429,24 +380,22 @@ function update() {
     ctx.strokeRect(-8, -e60.height/2, 3.5, 3);
     ctx.strokeRect(4, -e60.height/2, 3.5, 3);
 
-    // 3. E60 Kedi Gözü Agresif Ön Farlar (Angel Eyes)
-    ctx.fillStyle = '#fffb00'; // Parlak Angel Sarısı/Beyazı
+    // 3. E60 Kedi Gözü Ön Farlar (Angel Eyes)
+    ctx.fillStyle = '#fffb00'; 
     ctx.beginPath();
-    // Sol far kıvrımı
     ctx.moveTo(-e60.width/2 + 2, -e60.height/2 + 1);
     ctx.lineTo(-e60.width/2 + 11, -e60.height/2 + 3);
     ctx.lineTo(-e60.width/2 + 8, -e60.height/2 + 7);
     ctx.closePath(); ctx.fill();
-    // Sağ far kıvrımı
+    
     ctx.beginPath();
     ctx.moveTo(e60.width/2 - 2, -e60.height/2 + 1);
     ctx.lineTo(e60.width/2 - 11, -e60.height/2 + 3);
     ctx.lineTo(e60.width/2 - 8, -e60.height/2 + 7);
     ctx.closePath(); ctx.fill();
 
-    // 4. Ön ve Arka Cam Eğimleri (Kavisli Spor Sedan Tasarımı)
-    ctx.fillStyle = 'rgba(15, 20, 25, 0.85)'; // Karartılmış Camlar
-    // Ön Cam (Kavisli)
+    // 4. Ön ve Arka Cam Eğimleri
+    ctx.fillStyle = 'rgba(15, 20, 25, 0.85)'; 
     ctx.beginPath();
     ctx.moveTo(-e60.width/2 + 5, -15);
     ctx.quadraticCurveTo(0, -19, e60.width/2 - 5, -15);
@@ -454,7 +403,6 @@ function update() {
     ctx.lineTo(-e60.width/2 + 5, -4);
     ctx.closePath(); ctx.fill();
     
-    // Arka Cam (Eğimli Oval)
     ctx.beginPath();
     ctx.moveTo(-e60.width/2 + 5, 18);
     ctx.lineTo(e60.width/2 - 5, 18);
@@ -467,12 +415,12 @@ function update() {
     ctx.fillRect(-e60.width/2 - 4, -12, 4, 3);
     ctx.fillRect(e60.width/2, -12, 4, 3);
 
-    // 5. Arka LCI Stop Lambaları (Yana Kıvrılan Çizgiler)
+    // 5. Arka Stop Lambaları
     ctx.fillStyle = '#cc0011';
-    ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 5, 9, 4); // Sol stop
-    ctx.fillRect(e60.width/2 - 11, e60.height/2 - 5, 9, 4); // Sağ stop
+    ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 5, 9, 4); 
+    ctx.fillRect(e60.width/2 - 11, e60.height/2 - 5, 9, 4); 
 
-    // 6. E60 M5 Çift Çıkış Dörtlü Egzoz Boruları (Quad Exhausts)
+    // 6. Dörtlü Egzoz Çıkışları
     ctx.fillStyle = '#888';
     ctx.fillRect(-e60.width/4 - 3, e60.height/2, 2, 3);
     ctx.fillRect(-e60.width/4, e60.height/2, 2, 3);
