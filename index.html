@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E60 M5 Drift - Music Edition</title>
+    <title>E60 M5 Drift - Real Music Edition</title>
     <style>
         body {
             margin: 0;
@@ -37,7 +37,7 @@
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 11px;
-            border-left: 3px solid #0052b4; /* BMW Mavisi */
+            border-left: 3px solid #0052b4;
             pointer-events: none;
             z-index: 5;
             line-height: 1.4;
@@ -99,18 +99,30 @@
             color: #bbb;
         }
         .top1 { color: #ffca28; font-weight: bold; }
+        
+        /* YouTube Oynatıcıyı Gizleme Alanı */
+        #ytPlayerContainer {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
+<!-- GİZLİ YOUTUBE API ALTYAPISI -->
+<div id="ytPlayerContainer">
+    <div id="player"></div>
+</div>
+
 <div id="gameContainer">
-    <!-- TELİFSİZ JENERİK MÜZİK ETİKETİ -->
     <div id="musicInfo">
         🎵 Music by ТГК - Гелик<br>
-        <span style="color: #0052b4;">[Orijinal Audio Aktif]</span>
+        <span style="color: #00ff66;">[Orijinal YouTube Stream]</span>
     </div>
 
-    <!-- GİRİŞ SİSTEMİ -->
     <div id="startOverlay">
         <h2 style="color: #0052b4;">BMW E60 M5</h2>
         <p>Efsane kasa ile makas atarak yanla! Trafikteki arabalara çarpmamaya çalış.</p>
@@ -123,7 +135,6 @@
         </div>
     </div>
 
-    <!-- SKOR TABLOSU -->
     <div id="gameOverOverlay">
         <h2 style="color: #ff0033;">PERT OLDUN!</h2>
         <p id="finalScoreTxt">Skorun: 0</p>
@@ -138,6 +149,9 @@
     <canvas id="gameCanvas" width="360" height="640"></canvas>
 </div>
 
+<!-- YouTube IFrame API Scripti -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -150,7 +164,6 @@ let roadOffset = 0;
 let speed = 7;
 let score = 0;
 
-// GERÇEKÇİ E60 M5 GEOMETRİSİ
 const e60 = {
     x: 180,
     y: 450,
@@ -160,13 +173,11 @@ const e60 = {
     smoke: []
 };
 
-// Trafik Araçları
 let traffic = [];
 let spawnTimer = 0;
 const lanes = [70, 180, 290];
 const trafficColors = ['#cc0022', '#333333', '#444444', '#e6a100', '#007f5f'];
 
-// Alt Direksiyon Mekanizması
 const steeringWheel = {
     x: 180,
     y: 570,
@@ -175,14 +186,31 @@ const steeringWheel = {
     maxAngle: 2.2
 };
 
-// GERÇEK SES AKIŞ SİSTEMİ (Orijinal MP3 Dosyası)
-const realMusic = new Audio("https://archive.org/download/tgk-gelik-original-audio/tgk-gelik.mp3"); 
-realMusic.loop = true;
-realMusic.volume = 0.85;
+// YOUTUBE OYNATICI KONTROLÜ
+let player;
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '1',
+        width: '1',
+        videoId: '7e_0Y_p1Kog', // TGK - Gelik Orijinal Video ID'si
+        playerVars: {
+            'autoplay': 0,
+            'controls': 0,
+            'loop': 1,
+            'playlist': '7e_0Y_p1Kog' // Döngü için gerekli
+        },
+        events: {
+            'onReady': onPlayerReady
+        }
+    });
+}
 
-// Skor Tablosu Depolama Alanı
+function onPlayerReady(event) {
+    event.target.setVolume(85); // Ses seviyesi %85
+}
+
 function updateLeaderboardUI() {
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v3')) || [];
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
     while(scores.length < 3) { scores.push({name: "---", score: 0}); }
     
     let html = "";
@@ -198,11 +226,11 @@ function updateLeaderboardUI() {
 
 function saveScore(name, finalScore) {
     if(finalScore <= 0) return;
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v3')) || [];
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
     scores.push({name: name, score: finalScore});
     scores.sort((a, b) => b.score - a.score);
     scores = scores.slice(0, 3);
-    localStorage.setItem('e60_leaderboard_v3', JSON.stringify(scores));
+    localStorage.setItem('e60_leaderboard_v6', JSON.stringify(scores));
     updateLeaderboardUI();
 }
 
@@ -212,10 +240,10 @@ function setupGame() {
     document.getElementById('startOverlay').style.display = 'none';
     gameStarted = true;
     
-    // Gerçek Şarkıyı Başlatma Kodu
-    realMusic.play().catch(err => {
-        console.log("Müzik tetiklenemedi. Tarayıcı etkileşimi eksik:", err);
-    });
+    // YouTube Şarkısını Direkt Başlat (Kullanıcı butona bastığı için tarayıcı engellemez)
+    if (player && typeof player.playVideo === 'function') {
+        player.playVideo();
+    }
 }
 
 function restartGame() {
@@ -227,7 +255,6 @@ function restartGame() {
 
 updateLeaderboardUI();
 
-// Direksiyon Matematiksel Hesaplama Alanı
 function getMouseAngle(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     return Math.atan2(clientY - rect.top - steeringWheel.y, clientX - rect.left - steeringWheel.x);
@@ -266,18 +293,15 @@ canvas.addEventListener('touchstart', startControl, { passive: true });
 window.addEventListener('touchmove', moveControl, { passive: true });
 window.addEventListener('touchend', () => isInteracting = false);
 
-// OYUNU GÜNCELLE VE ÇİZ
 function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Otoban Tasarımı
     ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#1c1c1c'; ctx.fillRect(20, 0, 320, canvas.height); 
 
     roadOffset += speed;
     if (roadOffset > 40) roadOffset = 0;
 
-    // Otoban Şeritleri
     ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 4; ctx.setLineDash([25, 25]);
     ctx.beginPath();
     ctx.moveTo(125, 0); ctx.lineTo(125, canvas.height);
@@ -289,7 +313,6 @@ function update() {
         if (!isInteracting) steeringWheel.angle *= 0.84;
         e60.x += steeringWheel.angle * 4.8;
 
-        // Sınır Bariyerleri
         if (e60.x < 45) e60.x = 45;
         if (e60.x > 315) e60.x = 315;
 
@@ -305,7 +328,6 @@ function update() {
         }
         speed = 7 + Math.min(score / 900, 8);
 
-        // Trafik Akış Kontrolü
         spawnTimer++;
         if (spawnTimer > Math.max(45 - (speed * 1.4), 20)) {
             spawnTimer = 0;
@@ -320,7 +342,6 @@ function update() {
         }
     }
 
-    // Lastik Dumanları
     for (let i = e60.smoke.length - 1; i >= 0; i--) {
         let p = e60.smoke[i]; p.y += speed * 0.7; p.alpha -= 0.025;
         if (p.alpha <= 0) { e60.smoke.splice(i, 1); continue; }
@@ -328,7 +349,6 @@ function update() {
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
     }
 
-    // TRAFİK ARAÇLARINI ÇİZ
     for (let i = traffic.length - 1; i >= 0; i--) {
         let t = traffic[i];
         if (gameStarted) t.y += speed - t.speed;
@@ -340,7 +360,6 @@ function update() {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(t.x - t.width/2 + 3, t.y - 12, t.width - 6, 12);
 
-        // Çarpışma Algılayıcı
         if (gameStarted) {
             if (Math.abs(e60.x - t.x) < 38 && Math.abs(e60.y - t.y) < 80) {
                 gameStarted = false;
@@ -351,12 +370,11 @@ function update() {
         }
     }
 
-    // DETAYLI BMW E60 M5 CANVAS ÇİZİMİ
+    // BMW E60 M5 CANVAS ÇİZİMİ
     ctx.save();
     ctx.translate(e60.x, e60.y);
     ctx.rotate(e60.angle);
 
-    // 1. Ana Karoseri Gövde
     ctx.fillStyle = '#1c1f22'; 
     ctx.beginPath();
     ctx.moveTo(-e60.width/2 + 4, -e60.height/2); 
@@ -372,7 +390,6 @@ function update() {
     ctx.fill();
     ctx.strokeStyle = '#3a3f44'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // 2. BMW Böbrek Izgaraları
     ctx.fillStyle = '#050505';
     ctx.fillRect(-8, -e60.height/2, 3.5, 3);
     ctx.fillRect(4, -e60.height/2, 3.5, 3);
@@ -380,7 +397,6 @@ function update() {
     ctx.strokeRect(-8, -e60.height/2, 3.5, 3);
     ctx.strokeRect(4, -e60.height/2, 3.5, 3);
 
-    // 3. E60 Kedi Gözü Ön Farlar (Angel Eyes)
     ctx.fillStyle = '#fffb00'; 
     ctx.beginPath();
     ctx.moveTo(-e60.width/2 + 2, -e60.height/2 + 1);
@@ -394,7 +410,6 @@ function update() {
     ctx.lineTo(e60.width/2 - 8, -e60.height/2 + 7);
     ctx.closePath(); ctx.fill();
 
-    // 4. Ön ve Arka Cam Eğimleri
     ctx.fillStyle = 'rgba(15, 20, 25, 0.85)'; 
     ctx.beginPath();
     ctx.moveTo(-e60.width/2 + 5, -15);
@@ -410,17 +425,14 @@ function update() {
     ctx.lineTo(-e60.width/2 + 5, 28);
     ctx.closePath(); ctx.fill();
 
-    // Yan Dikiz Aynaları
     ctx.fillStyle = '#1c1f22';
     ctx.fillRect(-e60.width/2 - 4, -12, 4, 3);
     ctx.fillRect(e60.width/2, -12, 4, 3);
 
-    // 5. Arka Stop Lambaları
     ctx.fillStyle = '#cc0011';
     ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 5, 9, 4); 
     ctx.fillRect(e60.width/2 - 11, e60.height/2 - 5, 9, 4); 
 
-    // 6. Dörtlü Egzoz Çıkışları
     ctx.fillStyle = '#888';
     ctx.fillRect(-e60.width/4 - 3, e60.height/2, 2, 3);
     ctx.fillRect(-e60.width/4, e60.height/2, 2, 3);
@@ -429,7 +441,6 @@ function update() {
 
     ctx.restore();
 
-    // Alt Panel Direksiyon Gövdesi
     ctx.save(); ctx.translate(steeringWheel.x, steeringWheel.y); ctx.rotate(steeringWheel.angle);
     ctx.strokeStyle = '#222'; ctx.lineWidth = 8;
     ctx.beginPath(); ctx.arc(0, 0, steeringWheel.radius, 0, Math.PI * 2); ctx.stroke();
@@ -442,7 +453,6 @@ function update() {
     ctx.stroke();
     ctx.restore();
 
-    // Skor Göstergesi UI
     ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Courier New';
     ctx.fillText(`SKOR: ${score}`, 30, 95);
     ctx.fillStyle = '#0052b4'; ctx.fillText(`PİLOT: ${currentPlayerName.toUpperCase()}`, 30, 75);
