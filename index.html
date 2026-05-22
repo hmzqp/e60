@@ -100,27 +100,23 @@
         }
         .top1 { color: #ffca28; font-weight: bold; }
         
-        /* YouTube Oynatıcıyı Gizleme Alanı */
-        #ytPlayerContainer {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
+        /* Audio Player Gizleme */
+        #gameAudio {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-<!-- GİZLİ YOUTUBE API ALTYAPISI -->
-<div id="ytPlayerContainer">
-    <div id="player"></div>
-</div>
+<!-- AUDIO ELEMENT -->
+<audio id="gameAudio" loop>
+    <source src="https://www.youtube.com/watch?v=MN2IES00yBA" type="audio/mpeg">
+</audio>
 
 <div id="gameContainer">
     <div id="musicInfo">
-        🎵 Music by ТГК - Гелик<br>
-        <span style="color: #00ff66;">[Orijinal YouTube Stream]</span>
+        🎵 Music: YouTube Stream<br>
+        <span style="color: #00ff66;">[Now Playing]</span>
     </div>
 
     <div id="startOverlay">
@@ -149,12 +145,10 @@
     <canvas id="gameCanvas" width="360" height="640"></canvas>
 </div>
 
-<!-- YouTube IFrame API Scripti -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const gameAudio = document.getElementById('gameAudio');
 
 let gameStarted = false;
 let isInteracting = false;
@@ -185,29 +179,6 @@ const steeringWheel = {
     angle: 0,
     maxAngle: 2.2
 };
-
-// YOUTUBE OYNATICI KONTROLÜ
-let player;
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
-        height: '1',
-        width: '1',
-        videoId: '7e_0Y_p1Kog', // TGK - Gelik Orijinal Video ID'si
-        playerVars: {
-            'autoplay': 0,
-            'controls': 0,
-            'loop': 1,
-            'playlist': '7e_0Y_p1Kog' // Döngü için gerekli
-        },
-        events: {
-            'onReady': onPlayerReady
-        }
-    });
-}
-
-function onPlayerReady(event) {
-    event.target.setVolume(85); // Ses seviyesi %85
-}
 
 function updateLeaderboardUI() {
     let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
@@ -240,9 +211,9 @@ function setupGame() {
     document.getElementById('startOverlay').style.display = 'none';
     gameStarted = true;
     
-    // YouTube Şarkısını Direkt Başlat (Kullanıcı butona bastığı için tarayıcı engellemez)
-    if (player && typeof player.playVideo === 'function') {
-        player.playVideo();
+    // Play audio
+    if (gameAudio) {
+        gameAudio.play().catch(e => console.log('Audio play error:', e));
     }
 }
 
@@ -251,6 +222,11 @@ function restartGame() {
     score = 0; speed = 7; traffic = [];
     e60.x = 180; e60.angle = 0;
     gameStarted = true;
+    
+    // Resume audio
+    if (gameAudio) {
+        gameAudio.play().catch(e => console.log('Audio play error:', e));
+    }
 }
 
 updateLeaderboardUI();
@@ -363,6 +339,7 @@ function update() {
         if (gameStarted) {
             if (Math.abs(e60.x - t.x) < 38 && Math.abs(e60.y - t.y) < 80) {
                 gameStarted = false;
+                gameAudio.pause();
                 saveScore(currentPlayerName, score);
                 document.getElementById('finalScoreTxt').innerText = `${currentPlayerName}, Toplam Skorun: ${score}`;
                 document.getElementById('gameOverOverlay').style.display = 'flex';
