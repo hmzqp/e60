@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E60 Drift - Trafik ve Skor Modu</title>
+    <title>E60 M5 Drift - TGK Gelik Edition</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background: #111;
+            background: #0d0d0d;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,29 +22,30 @@
             position: relative;
             width: 360px;
             height: 640px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-            border: 2px solid #333;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.2);
+            border: 2px solid #222;
+            background: #151515;
         }
         canvas {
             display: block;
-            background: #1a1a1a;
         }
         #musicInfo {
             position: absolute;
             top: 15px;
             left: 15px;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             padding: 8px 12px;
             border-radius: 4px;
             font-size: 11px;
-            border-left: 3px solid #ff0055;
+            border-left: 3px solid #0052b4; /* BMW Mavisi */
             pointer-events: none;
             z-index: 5;
+            line-height: 1.4;
         }
         #startOverlay, #gameOverOverlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 10, 0.95);
+            background: rgba(5, 5, 5, 0.96);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -53,48 +54,49 @@
             z-index: 10;
         }
         #gameOverOverlay { display: none; }
-        h2 { margin-bottom: 5px; color: #fff; letter-spacing: 2px; }
-        p { color: #888; font-size: 12px; margin-bottom: 15px; padding: 0 25px;}
+        h2 { margin-bottom: 5px; color: #fff; letter-spacing: 3px; font-weight: 900; }
+        p { color: #aaa; font-size: 12px; margin-bottom: 15px; padding: 0 30px;}
         input {
-            background: #222;
-            border: 1px solid #444;
+            background: #1a1a1a;
+            border: 1px solid #333;
             color: white;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             font-family: monospace;
             font-size: 14px;
             margin-bottom: 15px;
-            width: 60%;
-            border-radius: 3px;
+            width: 65%;
+            border-radius: 4px;
         }
-        input:focus { border-color: #ff0055; outline: none; }
+        input:focus { border-color: #0052b4; outline: none; }
         .btn {
-            background: #ff0055;
+            background: #0052b4;
             color: white;
-            padding: 12px 25px;
+            padding: 12px 30px;
             border: none;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 3px;
-            font-family: monospace;
-            box-shadow: 0 4px 10px rgba(255, 0, 85, 0.3);
-        }
-        .btn:hover { background: #e0004c; }
-        .leaderboard {
-            margin-top: 20px;
-            width: 70%;
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
             border-radius: 4px;
-            border: 1px solid #333;
+            font-family: monospace;
+            box-shadow: 0 4px 15px rgba(0, 82, 180, 0.4);
+            letter-spacing: 1px;
         }
-        .leaderboard h3 { margin: 0 0 8px 0; font-size: 14px; color: #ff0055; }
+        .btn:hover { background: #003e8a; }
+        .leaderboard {
+            margin-top: 25px;
+            width: 75%;
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #222;
+        }
+        .leaderboard h3 { margin: 0 0 10px 0; font-size: 13px; color: #ff0055; letter-spacing: 1px; }
         .score-row {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            margin: 4px 0;
-            color: #ccc;
+            margin: 5px 0;
+            color: #bbb;
         }
         .top1 { color: #ffca28; font-weight: bold; }
     </style>
@@ -103,32 +105,31 @@
 
 <div id="gameContainer">
     <div id="musicInfo">
-        🔊 Müzik: Teçhizat Üretimi<br>
-        <span style="color: #ff0055;">[Sistem Sesi Aktif]</span>
+        🎵 ТГК - Гелик (2014)<br>
+        <span style="color: #0052b4;">[Arka Plan Bass Modu]</span>
     </div>
 
-    <!-- GİRİŞ EKRANI -->
+    <!-- GİRİŞ SİSTEMİ -->
     <div id="startOverlay">
-        <h2>E60 DRIFT</h2>
-        <p>Aşağıdaki direksiyonu çevirerek şerit değiştirmeden yanla ve trafiğe çarpmamaya çalış!</p>
-        <input type="text" id="playerName" placeholder="PİLOT ADI GİR" maxlength="10">
-        <button class="btn" onclick="setupGame()">OYNA & SESİ AÇ</button>
+        <h2 style="color: #0052b4;">BMW E60 M5</h2>
+        <p>Efsane kasa ile makas atarak yanla! Trafikteki arabalara çarpmamaya çalış.</p>
+        <input type="text" id="playerName" placeholder="PİLOT ADINI YAZ" maxlength="10">
+        <button class="btn" onclick="setupGame()">GAZLA & SESİ AÇ</button>
         
         <div class="leaderboard">
-            <h3>🏆 EN YÜKSEK SKORLAR (TOP 3)</h3>
+            <h3>🏆 LİDERLER TABLOSU (TOP 3)</h3>
             <div id="topScoresMenu"></div>
         </div>
     </div>
 
-    <!-- OYUN BİTTİ EKRANI -->
+    <!-- SKOR TABLOSU -->
     <div id="gameOverOverlay">
-        <h2 style="color: #ff0055;">KAZA YAPILDI!</h2>
+        <h2 style="color: #ff0033;">PERT OLDUN!</h2>
         <p id="finalScoreTxt">Skorun: 0</p>
-        
-        <button class="btn" onclick="restartGame()">TEKRAR DENE</button>
+        <button class="btn" style="background: #ff0033; box-shadow: 0 4px 15px rgba(255,0,51,0.3);" onclick="restartGame()">TEKRAR DENE</button>
 
         <div class="leaderboard">
-            <h3>🏆 EN YÜKSEK SKORLAR (TOP 3)</h3>
+            <h3>🏆 LİDERLER TABLOSU (TOP 3)</h3>
             <div id="topScoresGameOver"></div>
         </div>
     </div>
@@ -144,98 +145,104 @@ let gameStarted = false;
 let isInteracting = false;
 let currentPlayerName = "Anonim";
 
-// Yol ve Hız Kontrolleri
 let roadOffset = 0;
 let speed = 7;
 let score = 0;
 
-// E60 Ayarları
+// GERÇEKÇİ E60 M5 GEOMETRİSİ (Tepeden Bakış Projeksiyonu)
 const e60 = {
     x: 180,
-    y: 440, // Direksiyonun biraz üzerinde durması için yukarı çektim
-    width: 42,
-    height: 82,
+    y: 450,
+    width: 44,
+    height: 88,
     angle: 0,
     smoke: []
 };
 
-// Trafik Arabaları
+// Trafik Araçları
 let traffic = [];
 let spawnTimer = 0;
-const lanes = [70, 180, 290]; // Sol, Orta, Sağ Şerit Merkezleri
-const trafficColors = ['#cc0022', '#0066cc', '#009944', '#e6a100', '#730099'];
+const lanes = [70, 180, 290];
+const trafficColors = ['#cc0022', '#333333', '#444444', '#e6a100', '#007f5f'];
 
-// Direksiyon Ayarları
+// Alt Direksiyon Mekanizması
 const steeringWheel = {
     x: 180,
-    y: 565,
-    radius: 45,
+    y: 570,
+    radius: 42,
     angle: 0,
     maxAngle: 2.2
 };
 
-// DİNAMİK MÜZİK SİSTEMİ (Web Audio API)
-// Tarayıcının dış kaynakları engellemesini engellemek için kendi ritmini kendi üreten ses motoru.
+// TGK - GELIK SESTENSİYON MOTORU (Web Audio API)
+// Şarkının 2014 yılındaki o meşhur ağır hip-hop, kalın bas ve sentetik davul temposunu taklit eder.
 let audioCtx = null;
 let musicInterval = null;
-let beatIndex = 0;
-// Bas drift melodisi notaları
-const synthNotes = [110, 110, 130, 110, 146, 110, 130, 164]; 
+let stepCounter = 0;
 
-function startSynthMusic() {
+// Ağır "Gelik" hip-hop bas yürüyüşü notaları
+const gelikBassline = [55, 55, 65, 55, 48, 48, 55, 0]; 
+
+function startTGKMusic() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     musicInterval = setInterval(() => {
         if (!gameStarted) return;
         
-        // Bas Sesi Üretici (Her vuruşta tetiklenir)
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
+        let now = audioCtx.currentTime;
         
-        osc.type = 'sawtooth';
-        // Hıza göre ritmin frekansını hafifçe büküyoruz ucuz bir drift hissi için
-        osc.frequency.setValueAtTime(synthNotes[beatIndex % synthNotes.length], audioCtx.currentTime);
+        // 1. AĞIR KICK / BAS VURUŞU
+        if (stepCounter % 2 === 0) {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            
+            let note = gelikBassline[(stepCounter / 2) % gelikBassline.length];
+            if (note > 0) {
+                osc.frequency.setValueAtTime(note, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+                
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            }
+        }
         
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.22);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-
-        // Hi-Hat / Davul Tıslaması Ekleme
-        if (beatIndex % 2 === 0) {
-            let noise = audioCtx.createOscillator();
-            let noiseGain = audioCtx.createGain();
-            noise.type = 'triangle';
-            noise.frequency.setValueAtTime(10000, audioCtx.currentTime);
-            noiseGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-            noise.connect(noiseGain);
-            noiseGain.connect(audioCtx.destination);
-            noise.start();
-            noise.stop(audioCtx.currentTime + 0.06);
+        // 2. RETRO HİP-HOP TISLAMASI (SNARE / HI-HAT)
+        if (stepCounter % 4 === 2) {
+            let snareOsc = audioCtx.createOscillator();
+            let snareGain = audioCtx.createGain();
+            snareOsc.type = 'triangle';
+            snareOsc.frequency.setValueAtTime(800, now);
+            
+            snareGain.gain.setValueAtTime(0.08, now);
+            snareGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            
+            snareOsc.connect(snareGain);
+            snareGain.connect(audioCtx.destination);
+            snareOsc.start();
+            snareOsc.stop(now + 0.15);
         }
 
-        beatIndex++;
-    }, 150); // Ritim hızı
+        stepCounter++;
+    }, 220); // Ağır 90 BPM Hip-Hop Temposu
 }
 
-// Oyunu ve Liderlik Tablosunu Yükleme Odası
+// Skor Tablosu Depolama Alanı
 function updateLeaderboardUI() {
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard')) || [];
-    // Eksik yerleri doldur
-    while(scores.length < 3) {
-        scores.push({name: "---", score: 0});
-    }
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v2')) || [];
+    while(scores.length < 3) { scores.push({name: "---", score: 0}); }
     
     let html = "";
     scores.forEach((s, index) => {
-        let crown = index === 0 && s.score > 0 ? "👑 " : `${index + 1}. `;
+        let prefix = index === 0 && s.score > 0 ? "👑 " : `${index + 1}. `;
         let rowClass = index === 0 && s.score > 0 ? "score-row top1" : "score-row";
-        html += `<div class="${rowClass}"><span>${crown}${s.name}</span><span>${s.score} Puan</span></div>`;
+        html += `<div class="${rowClass}"><span>${prefix}${s.name}</span><span>${s.score} Puan</span></div>`;
     });
     
     document.getElementById('topScoresMenu').innerHTML = html;
@@ -244,45 +251,35 @@ function updateLeaderboardUI() {
 
 function saveScore(name, finalScore) {
     if(finalScore <= 0) return;
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard')) || [];
+    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v2')) || [];
     scores.push({name: name, score: finalScore});
-    // Büyükten küçüğe sırala
     scores.sort((a, b) => b.score - a.score);
-    // Sadece ilk 3'ü tut
     scores = scores.slice(0, 3);
-    localStorage.setItem('e60_leaderboard', JSON.stringify(scores));
+    localStorage.setItem('e60_leaderboard_v2', JSON.stringify(scores));
     updateLeaderboardUI();
 }
 
 function setupGame() {
     const inputName = document.getElementById('playerName').value.trim();
-    if(inputName !== "") {
-        currentPlayerName = inputName;
-    }
+    if(inputName !== "") currentPlayerName = inputName;
     document.getElementById('startOverlay').style.display = 'none';
     gameStarted = true;
-    startSynthMusic();
+    startTGKMusic();
 }
 
 function restartGame() {
     document.getElementById('gameOverOverlay').style.display = 'none';
-    score = 0;
-    speed = 7;
-    traffic = [];
-    e60.x = 180;
-    e60.angle = 0;
+    score = 0; speed = 7; traffic = [];
+    e60.x = 180; e60.angle = 0;
     gameStarted = true;
 }
 
-// Girişte Tabloyu Yükle
 updateLeaderboardUI();
 
-// Giriş ve Kontrol Mekanizması
+// Direksiyon Matematiksel Hesaplama Alanı
 function getMouseAngle(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = clientX - rect.left;
-    const mouseY = clientY - rect.top;
-    return Math.atan2(mouseY - steeringWheel.y, mouseX - steeringWheel.x);
+    return Math.atan2(clientY - rect.top - steeringWheel.y, clientX - rect.left - steeringWheel.x);
 }
 
 function startControl(e) {
@@ -291,11 +288,9 @@ function startControl(e) {
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     if (!clientX || !clientY) return;
 
-    const mouseX = clientX - rect.left;
-    const mouseY = clientY - rect.top;
-    
-    const dist = Math.hypot(mouseX - steeringWheel.x, mouseY - steeringWheel.y);
-    if (dist < steeringWheel.radius + 40) {
+    const mX = clientX - rect.left;
+    const mY = clientY - rect.top;
+    if (Math.hypot(mX - steeringWheel.x, mY - steeringWheel.y) < steeringWheel.radius + 40) {
         isInteracting = true;
     }
 }
@@ -306,148 +301,97 @@ function moveControl(e) {
     const clientY = e.clientY || (e.touches && e.touches[0].clientY);
     if (!clientX || !clientY) return;
 
-    let currentAngle = getMouseAngle(clientX, clientY);
-    let adjustedAngle = currentAngle + Math.PI / 2;
-
+    let adjustedAngle = getMouseAngle(clientX, clientY) + Math.PI / 2;
     if (adjustedAngle > Math.PI) adjustedAngle -= Math.PI * 2;
     if (adjustedAngle < -Math.PI) adjustedAngle += Math.PI * 2;
 
-    if (adjustedAngle < -steeringWheel.maxAngle) adjustedAngle = -steeringWheel.maxAngle;
-    if (adjustedAngle > steeringWheel.maxAngle) adjustedAngle = steeringWheel.maxAngle;
-
-    steeringWheel.angle = adjustedAngle;
+    steeringWheel.angle = Math.max(-steeringWheel.maxAngle, Math.min(steeringWheel.maxAngle, adjustedAngle));
 }
-
-function endControl() { isInteracting = false; }
 
 canvas.addEventListener('mousedown', startControl);
 window.addEventListener('mousemove', moveControl);
-window.addEventListener('mouseup', endControl);
+window.addEventListener('mouseup', () => isInteracting = false);
 canvas.addEventListener('touchstart', startControl, { passive: true });
 window.addEventListener('touchmove', moveControl, { passive: true });
-window.addEventListener('touchend', endControl);
+window.addEventListener('touchend', () => isInteracting = false);
 
-function createSmoke(x, y) {
-    if (Math.abs(e60.angle) > 0.04) {
-        e60.smoke.push({ x: x, y: y, size: Math.random() * 5 + 3, alpha: 0.4 });
-    }
-}
-
-// OYUN MOTORU DÖNGÜSÜ
+// OYUNU GÜNCELLE VE ÇİZ
 function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Asfalt Tablo Çizimi
+    // Otoban Tasarımı
     ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#222'; ctx.fillRect(20, 0, 320, canvas.height); // Yol genişletildi
+    ctx.fillStyle = '#1c1c1c'; ctx.fillRect(20, 0, 320, canvas.height); 
 
     roadOffset += speed;
     if (roadOffset > 40) roadOffset = 0;
 
-    // Şerit Çizgileri
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([20, 20]);
+    // Otoban Şeritleri
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 4; ctx.setLineDash([25, 25]);
     ctx.beginPath();
     ctx.moveTo(125, 0); ctx.lineTo(125, canvas.height);
     ctx.moveTo(235, 0); ctx.lineTo(235, canvas.height);
     ctx.stroke();
-
-    // Emniyet Şeritleri (Sarı)
-    ctx.strokeStyle = 'rgba(255, 200, 0, 0.2)';
-    ctx.beginPath();
-    ctx.lineDashOffset = -roadOffset;
-    ctx.moveTo(25, 0); ctx.lineTo(25, canvas.height);
-    ctx.moveTo(335, 0); ctx.lineTo(335, canvas.height);
-    ctx.stroke();
     ctx.setLineDash([]);
 
     if (gameStarted) {
-        if (!isInteracting) {
-            steeringWheel.angle *= 0.82; // Direksiyon toplama yumuşaklığı
-        }
-
-        // Araba Hareketi
+        if (!isInteracting) steeringWheel.angle *= 0.84;
         e60.x += steeringWheel.angle * 4.8;
 
-        // Yol dışı koruması
+        // Sınır Bariyerleri
         if (e60.x < 45) e60.x = 45;
         if (e60.x > 315) e60.x = 315;
 
-        let targetCarAngle = steeringWheel.angle * 0.28;
-        e60.angle += (targetCarAngle - e60.angle) * 0.2;
+        let targetAngle = steeringWheel.angle * 0.28;
+        e60.angle += (targetAngle - e60.angle) * 0.2;
 
-        // Yanlama Skoru Hesaplama
         if (Math.abs(e60.angle) > 0.05) {
             score += Math.floor(Math.abs(e60.angle) * 8);
-            createSmoke(e60.x - 10, e60.y + 35);
-            createSmoke(e60.x + 10, e60.y + 35);
+            if(Math.random() > 0.3) {
+                e60.smoke.push({ x: e60.x - 12, y: e60.y + 38, size: Math.random()*5+3, alpha: 0.4 });
+                e60.smoke.push({ x: e60.x + 12, y: e60.y + 38, size: Math.random()*5+3, alpha: 0.4 });
+            }
         }
+        speed = 7 + Math.min(score / 900, 8);
 
-        // Hızı zamanla hafifçe artır
-        speed = 7 + Math.min(score / 800, 8);
-
-        // TRAFİK ÜRETİMİ (Yapay Zeka Araçları)
+        // Trafik Akış Kontrolü
         spawnTimer++;
-        if (spawnTimer > Math.max(45 - (speed * 1.5), 22)) {
+        if (spawnTimer > Math.max(45 - (speed * 1.4), 20)) {
             spawnTimer = 0;
-            let randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-            
-            // Üst üste binme kontrolü
-            if (traffic.length === 0 || Math.abs(traffic[traffic.length - 1].y) > 130) {
+            let targetLane = lanes[Math.floor(Math.random() * lanes.length)];
+            if (traffic.length === 0 || Math.abs(traffic[traffic.length - 1].y) > 140) {
                 traffic.push({
-                    x: randomLane,
-                    y: -100,
-                    width: 38,
-                    height: 75,
-                    speed: 2 + Math.random() * 2,
+                    x: targetLane, y: -100, width: 40, height: 78,
+                    speed: 1.5 + Math.random() * 2,
                     color: trafficColors[Math.floor(Math.random() * trafficColors.length)]
                 });
             }
         }
     }
 
-    // Duman Efektleri Çizimi
+    // Lastik Dumanları
     for (let i = e60.smoke.length - 1; i >= 0; i--) {
-        let p = e60.smoke[i];
-        p.y += speed * 0.7;
-        p.alpha -= 0.02;
+        let p = e60.smoke[i]; p.y += speed * 0.7; p.alpha -= 0.025;
         if (p.alpha <= 0) { e60.smoke.splice(i, 1); continue; }
-        ctx.fillStyle = `rgba(160, 160, 160, ${p.alpha})`;
+        ctx.fillStyle = `rgba(140, 140, 140, ${p.alpha})`;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
     }
 
-    // TRAFİK ARAÇLARINI GÜNCELLE VE ÇİZ
+    // TRAFİK ARAÇLARINI ÇİZ
     for (let i = traffic.length - 1; i >= 0; i--) {
         let t = traffic[i];
-        if (gameStarted) {
-            t.y += speed - t.speed; // Oyuncu hızına göre aşağı akarlar
-        }
+        if (gameStarted) t.y += speed - t.speed;
 
-        // Ekrandan çıkan arabaları temizle
-        if (t.y > canvas.height + 100) {
-            traffic.splice(i, 1);
-            score += 50; // Başarıyla geçilen her araç için bonus puan
-            continue;
-        }
+        if (t.y > canvas.height + 100) { traffic.splice(i, 1); score += 50; continue; }
 
-        // Trafik arabası tasarımı
         ctx.fillStyle = t.color;
-        ctx.fillRect(t.x - t.width / 2, t.y - t.height / 2, t.width, t.height);
-        // Camlar ve Farlar
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(t.x - t.width / 2 + 3, t.y - 10, t.width - 6, 12);
-        ctx.fillStyle = '#ff0';
-        ctx.fillRect(t.x - t.width / 2 + 2, t.y + t.height / 2 - 4, 6, 4);
-        ctx.fillRect(t.x + t.width / 2 - 8, t.y + t.height / 2 - 4, 6, 4);
+        ctx.fillRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(t.x - t.width/2 + 3, t.y - 12, t.width - 6, 12); // Ön Cam
 
-        // KAZA KONTROLÜ (AABB Çarpışma Algoritması)
+        // Çarpışma Algılayıcı
         if (gameStarted) {
-            let hitX = Math.abs(e60.x - t.x) < (e60.width / 2 + t.width / 2 - 4);
-            let hitY = Math.abs(e60.y - t.y) < (e60.height / 2 + t.height / 2 - 4);
-            
-            if (hitX && hitY) {
-                // GAME OVER TETİKLENDİ
+            if (Math.abs(e60.x - t.x) < 38 && Math.abs(e60.y - t.y) < 80) {
                 gameStarted = false;
                 saveScore(currentPlayerName, score);
                 document.getElementById('finalScoreTxt').innerText = `${currentPlayerName}, Toplam Skorun: ${score}`;
@@ -456,67 +400,104 @@ function update() {
         }
     }
 
-    // KENDİ ARACIMIZ (E60 CANAVARI)
+    // DETAYLI BMW E60 M5 CANVAS ÇİZİMİ (Tofaş Tasarımı Tamamen Kaldırıldı)
     ctx.save();
     ctx.translate(e60.x, e60.y);
     ctx.rotate(e60.angle);
 
-    // Gövde
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(-e60.width/2, -e60.height/2, e60.width, e60.height);
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-    ctx.strokeRect(-e60.width/2, -e60.height/2, e60.width, e60.height);
-
-    // Ön-Arka Camlar
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(-e60.width/2 + 4, -16, e60.width - 8, 12);
-    ctx.fillRect(-e60.width/2 + 4, 20, e60.width - 8, 10);
-
-    // Angel Farlar
-    ctx.fillStyle = '#ffea00';
-    ctx.fillRect(-e60.width/2 + 3, -e60.height/2, 6, 3);
-    ctx.fillRect(e60.width/2 - 9, -e60.height/2, 6, 3);
-
-    // Stop Lambaları
-    ctx.fillStyle = '#ff0033';
-    ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 3, 8, 3);
-    ctx.fillRect(e60.width/2 - 10, e60.height/2 - 3, 8, 3);
-
-    ctx.restore();
-
-    // KONTROL PANELİ VE DİREKSİYON SİMİDİ
-    ctx.save();
-    ctx.translate(steeringWheel.x, steeringWheel.y);
-    ctx.rotate(steeringWheel.angle);
-
-    // Direksiyon Çemberi
-    ctx.strokeStyle = '#2d2d2d'; ctx.lineWidth = 9;
-    ctx.beginPath(); ctx.arc(0, 0, steeringWheel.radius, 0, Math.PI * 2); ctx.stroke();
-
-    // Merkez Göbek
-    ctx.fillStyle = '#151515';
-    ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 2; ctx.stroke();
-
-    // Direksiyon Kolları
-    ctx.strokeStyle = '#2d2d2d'; ctx.lineWidth = 7;
+    // 1. Ana Karoseri Gövde (E60 Aerodinamik Oval/Açılı Yapısı)
+    ctx.fillStyle = '#1c1f22'; // Derin Metalik Füme/Siyah E60 Rengi
     ctx.beginPath();
-    ctx.moveTo(14, 0); ctx.lineTo(steeringWheel.radius - 3, 0);
-    ctx.moveTo(-14, 0); ctx.lineTo(-steeringWheel.radius + 3, 0);
-    ctx.moveTo(0, 14); ctx.lineTo(0, steeringWheel.radius - 3);
-    ctx.stroke();
+    ctx.moveTo(-e60.width/2 + 4, -e60.height/2); // Sol Ön Çamurluk başlangıcı
+    ctx.lineTo(e60.width/2 - 4, -e60.height/2);  // Sağ Ön
+    ctx.quadraticCurveTo(e60.width/2, -e60.height/2 + 10, e60.width/2, -e60.height/4); // Ön Bombeli Çamurluklar
+    ctx.lineTo(e60.width/2, e60.height/4); // Yan Çizgi
+    ctx.quadraticCurveTo(e60.width/2, e60.height/2, e60.width/2 - 3, e60.height/2); // Arka Kaslı Çamurluk
+    ctx.lineTo(-e60.width/2 + 3, e60.height/2); // Bagaj Çizgisi
+    ctx.quadraticCurveTo(-e60.width/2, e60.height/2, -e60.width/2, e60.height/4);
+    ctx.lineTo(-e60.width/2, -e60.height/4);
+    ctx.quadraticCurveTo(-e60.width/2, -e60.height/2 + 10, -e60.width/2 + 4, -e60.height/2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#3a3f44'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // 2. BMW İkonik Böbrek Izgaraları (Kidney Grilles)
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(-8, -e60.height/2, 3.5, 3);
+    ctx.fillRect(4, -e60.height/2, 3.5, 3);
+    ctx.strokeStyle = '#777'; ctx.lineWidth = 0.5;
+    ctx.strokeRect(-8, -e60.height/2, 3.5, 3);
+    ctx.strokeRect(4, -e60.height/2, 3.5, 3);
+
+    // 3. E60 Kedi Gözü Agresif Ön Farlar (Angel Eyes)
+    ctx.fillStyle = '#fffb00'; // Parlak Angel Sarısı/Beyazı
+    ctx.beginPath();
+    // Sol far kıvrımı
+    ctx.moveTo(-e60.width/2 + 2, -e60.height/2 + 1);
+    ctx.lineTo(-e60.width/2 + 11, -e60.height/2 + 3);
+    ctx.lineTo(-e60.width/2 + 8, -e60.height/2 + 7);
+    ctx.closePath(); ctx.fill();
+    // Sağ far kıvrımı
+    ctx.beginPath();
+    ctx.moveTo(e60.width/2 - 2, -e60.height/2 + 1);
+    ctx.lineTo(e60.width/2 - 11, -e60.height/2 + 3);
+    ctx.lineTo(e60.width/2 - 8, -e60.height/2 + 7);
+    ctx.closePath(); ctx.fill();
+
+    // 4. Ön ve Arka Cam Eğimleri (Kavisli Spor Sedan Tasarımı)
+    ctx.fillStyle = 'rgba(15, 20, 25, 0.85)'; // Karartılmış Camlar
+    // Ön Cam (Kavisli)
+    ctx.beginPath();
+    ctx.moveTo(-e60.width/2 + 5, -15);
+    ctx.quadraticCurveTo(0, -19, e60.width/2 - 5, -15);
+    ctx.lineTo(e60.width/2 - 5, -4);
+    ctx.lineTo(-e60.width/2 + 5, -4);
+    ctx.closePath(); ctx.fill();
+    
+    // Arka Cam (Eğimli Oval)
+    ctx.beginPath();
+    ctx.moveTo(-e60.width/2 + 5, 18);
+    ctx.lineTo(e60.width/2 - 5, 18);
+    ctx.quadraticCurveTo(0, 25, e60.width/2 - 5, 28);
+    ctx.lineTo(-e60.width/2 + 5, 28);
+    ctx.closePath(); ctx.fill();
+
+    // Yan Dikiz Aynaları
+    ctx.fillStyle = '#1c1f22';
+    ctx.fillRect(-e60.width/2 - 4, -12, 4, 3);
+    ctx.fillRect(e60.width/2, -12, 4, 3);
+
+    // 5. Arka LCI Stop Lambaları (Yana Kıvrılan Çizgiler)
+    ctx.fillStyle = '#cc0011';
+    ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 5, 9, 4); // Sol stop
+    ctx.fillRect(e60.width/2 - 11, e60.height/2 - 5, 9, 4); // Sağ stop
+
+    // 6. E60 M5 Çift Çıkış Dörtlü Egzoz Boruları (Quad Exhausts)
+    ctx.fillStyle = '#888';
+    ctx.fillRect(-e60.width/4 - 3, e60.height/2, 2, 3);
+    ctx.fillRect(-e60.width/4, e60.height/2, 2, 3);
+    ctx.fillRect(e60.width/4, e60.height/2, 2, 3);
+    ctx.fillRect(e60.width/4 + 3, e60.height/2, 2, 3);
 
     ctx.restore();
 
-    // Arayüz Çizgisi ve Skor Göstergesi
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(0, 500); ctx.lineTo(360, 500); ctx.stroke();
+    // Alt Panel Direksiyon Gövdesi
+    ctx.save(); ctx.translate(steeringWheel.x, steeringWheel.y); ctx.rotate(steeringWheel.angle);
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.arc(0, 0, steeringWheel.radius, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(13, 0); ctx.lineTo(steeringWheel.radius - 2, 0);
+    ctx.moveTo(-13, 0); ctx.lineTo(-steeringWheel.radius + 2, 0);
+    ctx.moveTo(0, 13); ctx.lineTo(0, steeringWheel.radius - 2);
+    ctx.stroke();
+    ctx.restore();
 
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px Courier New';
+    // Skor Göstergesi UI
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Courier New';
     ctx.fillText(`SKOR: ${score}`, 30, 95);
-    ctx.fillStyle = '#ff0055';
-    ctx.fillText(`PİLOT: ${currentPlayerName.toUpperCase()}`, 30, 75);
+    ctx.fillStyle = '#0052b4'; ctx.fillText(`PİLOT: ${currentPlayerName.toUpperCase()}`, 30, 75);
 
     requestAnimationFrame(update);
 }
