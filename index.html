@@ -18,7 +18,6 @@
             overflow: hidden;
             user-select: none;
         }
-
         /* Dik Ekran (Telefon Boyutu) */
         #gameContainer {
             position: relative;
@@ -27,12 +26,10 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
             border: 2px solid #333;
         }
-
         canvas {
             display: block;
             background: #1a1a1a;
         }
-
         #musicInfo {
             position: absolute;
             top: 15px;
@@ -44,7 +41,6 @@
             border-left: 3px solid #ff0055;
             pointer-events: none;
         }
-
         #startOverlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -57,7 +53,6 @@
             cursor: pointer;
             z-index: 10;
         }
-
         h2 { margin-bottom: 5px; color: #fff; }
         p { color: #888; font-size: 13px; margin-bottom: 20px; padding: 0 20px;}
         .btn {
@@ -78,15 +73,12 @@
         🔊 Çalan: ТГК - Гелик (2014)<br>
         <span style="color: #888;">[YouTube Embed]</span>
     </div>
-
     <div id="startOverlay" onclick="startGame()">
         <h2>E60 DRIFT</h2>
         <p>Ekranın en altındaki direksiyonu tutup sağa sola çevirerek yanla!</p>
         <button class="btn">OYNA & MÜZİĞİ AÇ</button>
     </div>
-
     <div id="video-container" style="position:absolute; width:0; height:0; opacity:0; pointer-events:none;"></div>
-
     <canvas id="gameCanvas" width="360" height="640"></canvas>
 </div>
 
@@ -102,10 +94,10 @@ let roadOffset = 0;
 let speed = 8;
 let score = 0;
 
-// E60 Başlangıç Ayarları (Ekranın orta-üst kısmına yakın duruyor ki alttaki direksiyonu kapatmasın)
+// E60 Başlangıç Ayarları
 const e60 = {
     x: 180,
-    y: 340, 
+    y: 340,
     width: 45,
     height: 85,
     angle: 0,
@@ -133,7 +125,6 @@ function getMouseAngle(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = clientX - rect.left;
     const mouseY = clientY - rect.top;
-    // Direksiyon merkezine göre açıyı hesapla
     return Math.atan2(mouseY - steeringWheel.y, mouseX - steeringWheel.x);
 }
 
@@ -143,8 +134,7 @@ function startControl(e) {
     const clientY = e.clientY || e.touches[0].clientY;
     const mouseX = clientX - rect.left;
     const mouseY = clientY - rect.top;
-
-    // Kullanıcı direksiyonun yakınlarına dokundu mu kontrolü
+    
     const dist = Math.hypot(mouseX - steeringWheel.x, mouseY - steeringWheel.y);
     if (dist < steeringWheel.radius + 30) {
         isInteracting = true;
@@ -158,10 +148,8 @@ function moveControl(e) {
     if (!clientX || !clientY) return;
 
     let currentAngle = getMouseAngle(clientX, clientY);
-    // Alt kadran kontrollerini daha rahat yapmak için hizalama ayarı (+Math.PI/2)
     let adjustedAngle = currentAngle + Math.PI / 2;
 
-    // Açıyı normalize etme ve sınırlar içinde tutma
     if (adjustedAngle > Math.PI) adjustedAngle -= Math.PI * 2;
     if (adjustedAngle < -Math.PI) adjustedAngle += Math.PI * 2;
 
@@ -223,24 +211,19 @@ function update() {
     ctx.setLineDash([]);
 
     if (gameStarted) {
-        // Direksiyon serbest bırakıldıysa yavaşça merkeze dönsün
         if (!isInteracting) {
-            steeringWheel.angle *= 0.85; 
+            steeringWheel.angle *= 0.85;
         }
 
-        // 2. Direksiyon Açısına Göre E60 Hareketi
-        // Direksiyon açısı arabanın yatay hızını belirler
+        // 2. Direksiyon Hareketi
         e60.x += steeringWheel.angle * 4.5;
 
-        // Ekran dışına çıkma bariyeri
         if (e60.x < 55) e60.x = 55;
         if (e60.x > 305) e60.x = 305;
 
-        // E60'ın drift yanlama açısı direksiyon açısıyla doğru orantılı değişir
         let targetCarAngle = steeringWheel.angle * 0.25;
         e60.angle += (targetCarAngle - e60.angle) * 0.15;
 
-        // Drift Skor Sistemi ve Duman Efektleri
         if (Math.abs(e60.angle) > 0.05) {
             score += Math.floor(Math.abs(e60.angle) * 15);
             createSmoke(e60.x - 12, e60.y + 35);
@@ -248,7 +231,7 @@ function update() {
         }
     }
 
-    // 3. Duman Parçacıklarını Çiz
+    // 3. Dumanlar
     for (let i = e60.smoke.length - 1; i >= 0; i--) {
         let p = e60.smoke[i];
         p.y += speed * 0.6;
@@ -263,67 +246,56 @@ function update() {
     ctx.translate(e60.x, e60.y);
     ctx.rotate(e60.angle);
 
-    // Siyah Gövde
     ctx.fillStyle = '#0d0d0d';
     ctx.fillRect(-e60.width/2, -e60.height/2, e60.width, e60.height);
     ctx.strokeStyle = '#252525'; ctx.lineWidth = 2;
     ctx.strokeRect(-e60.width/2, -e60.height/2, e60.width, e60.height);
 
-    // Camlar
     ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.fillRect(-e60.width/2 + 4, -18, e60.width - 8, 14); // Ön
-    ctx.fillRect(-e60.width/2 + 4, 22, e60.width - 8, 12);  // Arka
+    ctx.fillRect(-e60.width/2 + 4, -18, e60.width - 8, 14);
+    ctx.fillRect(-e60.width/2 + 4, 22, e60.width - 8, 12);
 
-    // İkonik E60 Far Tasarımı (Angel Eyes)
     ctx.fillStyle = '#ffffe0';
     ctx.fillRect(-e60.width/2 + 3, -e60.height/2, 7, 3);
     ctx.fillRect(e60.width/2 - 10, -e60.height/2, 7, 3);
 
-    // Arka Stoplar
     ctx.fillStyle = '#cc0022';
     ctx.fillRect(-e60.width/2 + 2, e60.height/2 - 3, 9, 3);
     ctx.fillRect(e60.width/2 - 11, e60.height/2 - 3, 9, 3);
 
     ctx.restore();
 
-    // 5. EN ALTTAKİ DİREKSİYON SİMİDİNİ ÇİZME (Görsel Arayüz)
+    // 5. DİREKSİYON ÇİZİMİ
     ctx.save();
     ctx.translate(steeringWheel.x, steeringWheel.y);
-    ctx.rotate(steeringWheel.angle); // Direksiyon kendi etrafında döner
+    ctx.rotate(steeringWheel.angle);
 
-    // Dış Simit Konturu
     ctx.strokeStyle = '#444';
     ctx.lineWidth = 10;
     ctx.beginPath();
     ctx.arc(0, 0, steeringWheel.radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    // İç Merkez Göbek
     ctx.fillStyle = '#222';
     ctx.beginPath();
     ctx.arc(0, 0, 16, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#555'; ctx.lineWidth = 2; ctx.stroke();
 
-    // Direksiyon Kolları (T-Tasarım Üç Kol)
     ctx.strokeStyle = '#444';
     ctx.lineWidth = 8;
     ctx.beginPath();
-    // Sağ kol
     ctx.moveTo(16, 0); ctx.lineTo(steeringWheel.radius - 4, 0);
-    // Sol kol
     ctx.moveTo(-16, 0); ctx.lineTo(-steeringWheel.radius + 4, 0);
-    // Alt dik kol
     ctx.moveTo(0, 16); ctx.lineTo(0, steeringWheel.radius - 4);
     ctx.stroke();
 
     ctx.restore();
 
-    // Süsleme panel çizgisi (Direksiyonun durduğu konsolu ayırır)
     ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, 460); ctx.lineTo(360, 460); ctx.stroke();
 
-    // 6. Skor Paneli
+    // 6. Skor
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 15px Courier New';
     ctx.fillText(`DRIFT SCORE: ${score}`, 35, 95);
@@ -333,6 +305,5 @@ function update() {
 
 update();
 </script>
-
 </body>
 </html>
