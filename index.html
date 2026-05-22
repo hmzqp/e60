@@ -127,8 +127,8 @@
         <button class="btn" onclick="setupGame()">GAZLA & SESİ AÇ</button>
         
         <div class="leaderboard">
-            <h3>🏆 LİDERLER TABLOSU (TOP 3)</h3>
-            <div id="topScoresMenu"></div>
+            <h3>🏆 GLOBAL LİDERLER (TOP 3)</h3>
+            <div id="topScoresMenu"><div style="color: #666; font-size: 12px;">Yükleniyor...</div></div>
         </div>
     </div>
 
@@ -138,8 +138,8 @@
         <button class="btn" style="background: #ff0033; box-shadow: 0 4px 15px rgba(255,0,51,0.3);" onclick="restartGame()">TEKRAR DENE</button>
 
         <div class="leaderboard">
-            <h3>🏆 LİDERLER TABLOSU (TOP 3)</h3>
-            <div id="topScoresGameOver"></div>
+            <h3>🏆 GLOBAL LİDERLER (TOP 3)</h3>
+            <div id="topScoresGameOver"><div style="color: #666; font-size: 12px;">Yükleniyor...</div></div>
         </div>
     </div>
 
@@ -181,12 +181,32 @@ const steeringWheel = {
     maxAngle: 2.2
 };
 
-function updateLeaderboardUI() {
-    let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
-    while(scores.length < 3) { scores.push({name: "---", score: 0}); }
+const LEADERBOARD_URL = 'https://raw.githubusercontent.com/hmzqp/e60/main/leaderboard.json';
+
+async function fetchGlobalLeaderboard() {
+    try {
+        const response = await fetch(LEADERBOARD_URL);
+        const data = await response.json();
+        return data.scores || [];
+    } catch (e) {
+        console.log('Leaderboard fetch error:', e);
+        return [];
+    }
+}
+
+async function updateLeaderboardUI() {
+    let globalScores = await fetchGlobalLeaderboard();
+    let localScores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
+    
+    // Merge and sort
+    let allScores = [...globalScores, ...localScores];
+    allScores.sort((a, b) => b.score - a.score);
+    allScores = allScores.slice(0, 3);
+    
+    while(allScores.length < 3) { allScores.push({name: "---", score: 0}); }
     
     let html = "";
-    scores.forEach((s, index) => {
+    allScores.forEach((s, index) => {
         let prefix = index === 0 && s.score > 0 ? "👑 " : `${index + 1}. `;
         let rowClass = index === 0 && s.score > 0 ? "score-row top1" : "score-row";
         html += `<div class="${rowClass}"><span>${prefix}${s.name}</span><span>${s.score} Puan</span></div>`;
@@ -201,7 +221,7 @@ function saveScore(name, finalScore) {
     let scores = JSON.parse(localStorage.getItem('e60_leaderboard_v6')) || [];
     scores.push({name: name, score: finalScore});
     scores.sort((a, b) => b.score - a.score);
-    scores = scores.slice(0, 3);
+    scores = scores.slice(0, 10);
     localStorage.setItem('e60_leaderboard_v6', JSON.stringify(scores));
     updateLeaderboardUI();
 }
